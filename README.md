@@ -455,6 +455,9 @@
       <button id="hint-btn">
         <i class="fas fa-lightbulb"></i> راهنمایی (<span id="hint-count">3</span>)
       </button>
+      <button id="new-game-btn" style="display: none;">
+        <i class="fas fa-redo"></i> بازی جدید
+      </button>
     </div>
     
     <div class="creator-credit">
@@ -510,7 +513,7 @@
     let wordPositions = [];
     let timer;
     let timeLeft = 90;
-    let usedWords = []; // لیست کلمات استفاده شده
+    let usedWords = [];
 
     // عناصر DOM
     const grid = document.getElementById("grid");
@@ -523,6 +526,7 @@
     const progressBar = document.getElementById("progress-bar");
     const nextLevelBtn = document.getElementById("next-level-btn");
     const hintBtn = document.getElementById("hint-btn");
+    const newGameBtn = document.getElementById("new-game-btn");
     const levelCompleteDiv = document.getElementById("level-complete");
 
     // مقداردهی اولیه
@@ -550,7 +554,6 @@
       let availableWords = level.words.filter(word => !usedWords.includes(word));
       
       if (availableWords.length === 0) {
-        // اگر همه کلمات استفاده شده‌اند، لیست را ریست کنیم
         usedWords = [];
         availableWords = [...level.words];
       }
@@ -568,59 +571,93 @@
       // تنظیم گرید
       grid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
       
-      // تولید جدول
-      generateGrid();
+      // تولید جدول با بررسی صحت قرارگیری کلمه
+      let validGrid = false;
+      let attempts = 0;
+      const maxAttempts = 10;
+      
+      while (!validGrid && attempts < maxAttempts) {
+        try {
+          generateGrid();
+          validGrid = verifyWordPlacement();
+          attempts++;
+          if (!validGrid) {
+            grid.innerHTML = '';
+            wordPositions = [];
+          }
+        } catch (e) {
+          console.error("خطا در تولید جدول:", e);
+          attempts++;
+        }
+      }
+      
+      if (!validGrid) {
+        message.textContent = "خطا در ایجاد جدول! لطفاً صفحه را رفرش کنید.";
+        message.className = "error";
+        return;
+      }
       
       // شروع تایمر
       startTimer();
     }
 
-    // تولید جدول حروف
+    // تولید جدول حروف با اطمینان از قرارگیری صحیح کلمه
     function generateGrid() {
       const fullGrid = new Array(gridSize * gridSize).fill('');
 
-      // انتخاب مسیر تصادفی
-      const directions = ["horizontal", "vertical", "diagonal"];
+      // جهت‌های ممکن برای قرارگیری کلمه
+      const directions = [
+        { name: "horizontal", rowInc: 0, colInc: 1 },   // افقی
+        { name: "vertical", rowInc: 1, colInc: 0 },     // عمودی
+        { name: "diagonal", rowInc: 1, colInc: 1 },     // قطری
+        { name: "diagonal-reverse", rowInc: 1, colInc: -1 }  // قطری معکوس
+      ];
+      
+      // انتخاب تصادفی یک جهت
       const direction = directions[Math.floor(Math.random() * directions.length)];
-
       let startRow, startCol;
-      let rowInc = 0, colInc = 0;
 
-      switch (direction) {
+      // محاسبه موقعیت شروع با توجه به جهت و طول کلمه
+      switch (direction.name) {
         case "horizontal":
           startRow = Math.floor(Math.random() * gridSize);
-          startCol = Math.floor(Math.random() * (gridSize - selectedWord.length));
-          rowInc = 0;
-          colInc = 1;
+          startCol = Math.floor(Math.random() * (gridSize - selectedWord.length + 1));
           break;
         case "vertical":
-          startRow = Math.floor(Math.random() * (gridSize - selectedWord.length));
+          startRow = Math.floor(Math.random() * (gridSize - selectedWord.length + 1));
           startCol = Math.floor(Math.random() * gridSize);
-          rowInc = 1;
-          colInc = 0;
           break;
         case "diagonal":
-          startRow = Math.floor(Math.random() * (gridSize - selectedWord.length));
-          startCol = Math.floor(Math.random() * (gridSize - selectedWord.length));
-          rowInc = 1;
-          colInc = 1;
+          startRow = Math.floor(Math.random() * (gridSize - selectedWord.length + 1));
+          startCol = Math.floor(Math.random() * (gridSize - selectedWord.length + 1));
+          break;
+        case "diagonal-reverse":
+          startRow = Math.floor(Math.random() * (gridSize - selectedWord.length + 1));
+          startCol = Math.floor(Math.random() * (gridSize - selectedWord.length + 1)) + selectedWord.length - 1;
           break;
       }
 
       // قرار دادن کلمه در جدول
       for (let i = 0; i < selectedWord.length; i++) {
-        const row = startRow + i * rowInc;
-        const col = startCol + i * colInc;
+        const row = startRow + i * direction.rowInc;
+        const col = startCol + i * direction.colInc;
+        
+        // بررسی معتبر بودن موقعیت
+        if (row < 0 || row >= gridSize || col < 0 || col >= gridSize) {
+          throw new Error("موقعیت نامعتبر برای کلمه");
+        }
+        
         const index = row * gridSize + col;
         fullGrid[index] = selectedWord[i];
         wordPositions.push(index);
       }
 
-      // پر کردن باقی جدول
+      // پر کردن باقی جدول با حروف تصادفی
       for (let i = 0; i < fullGrid.length; i++) {
         if (!fullGrid[i]) {
           fullGrid[i] = gameSettings.letters[Math.floor(Math.random() * gameSettings.letters.length)];
         }
+        
         const cell = document.createElement("div");
         cell.classList.add("cell");
         cell.textContent = fullGrid[i];
@@ -628,6 +665,16 @@
         cell.addEventListener("click", () => selectCell(cell));
         grid.appendChild(cell);
       }
+    }
+
+    // بررسی صحت قرارگیری کلمه در جدول
+    function verifyWordPlacement() {
+      if (wordPositions.length !== selectedWord.length) {
+        return false;
+      }
+      
+      const placedWord = wordPositions.map(i => grid.children[i].textContent).join("");
+      return placedWord === selectedWord;
     }
 
     // انتخاب سلول
@@ -808,7 +855,18 @@
       }, 1000);
     }
 
-    // رویدادها
+    // شروع بازی جدید
+    function startNewGame() {
+      currentLevel = 0;
+      score = 0;
+      usedWords = [];
+      scoreElement.textContent = score;
+      newGameBtn.style.display = 'none';
+      nextLevelBtn.style.display = 'inline-flex';
+      initLevel();
+    }
+
+    // رویداد کلیک دکمه مرحله بعد
     nextLevelBtn.addEventListener("click", () => {
       currentLevel++;
       if (currentLevel < gameSettings.levels.length) {
@@ -818,13 +876,19 @@
         message.textContent = `تبریک! بازی به پایان رسید. امتیاز نهایی شما: ${score}`;
         message.className = "success";
         nextLevelBtn.disabled = true;
+        nextLevelBtn.style.display = 'none';
+        newGameBtn.style.display = 'inline-flex';
         grid.innerHTML = '';
         wordDiv.textContent = '';
         levelCompleteDiv.style.display = 'none';
       }
     });
     
+    // رویداد کلیک دکمه راهنمایی
     hintBtn.addEventListener("click", showHint);
+    
+    // رویداد کلیک دکمه بازی جدید
+    newGameBtn.addEventListener("click", startNewGame);
   </script>
 </body>
 </html>

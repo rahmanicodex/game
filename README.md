@@ -6,6 +6,13 @@
   <title>بازی تست هوش</title>
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet">
   <style>
+    html, body {
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+      position: fixed;
+    }
+
     :root {
       --primary: #4361ee;
       --primary-light: #4895ef;
@@ -16,7 +23,6 @@
       --info: #43aa8b;
       --light: #f8f9fa;
       --dark: #212529;
-      --bg-gradient: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
       --cell-gradient: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
       --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       --shadow-hover: 0 10px 15px rgba(0, 0, 0, 0.1);
@@ -31,7 +37,11 @@
     body {
       font-family: Vazir, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       direction: rtl;
-      background: var(--bg-gradient);
+      background: 
+        linear-gradient(135deg, rgba(67, 97, 238, 0.2) 0%, rgba(58, 12, 163, 0.2) 100%),
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path fill="%234361ee" fill-opacity="0.1" d="M30,10L50,30L70,10L90,30L70,50L90,70L70,90L50,70L30,90L10,70L30,50L10,30L30,10Z" transform="rotate(45 50 50)"/></svg>');
+      background-attachment: fixed;
+      background-size: cover;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -42,16 +52,18 @@
     }
 
     .container {
-      background: white;
+      background: rgba(255, 255, 255, 0.9);
       border-radius: 20px;
       box-shadow: var(--shadow-hover);
       padding: 30px;
       width: 95%;
       max-width: 800px;
+      max-height: 95vh;
+      overflow-y: auto;
       text-align: center;
       position: relative;
-      overflow: hidden;
       transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
     }
 
     .container::before {
@@ -406,20 +418,22 @@
 </head>
 <body>
   <div class="container">
-    <h1>بازی جذاب پیدا کردن کلمات</h1>
+    <h1>بازی تست هوش</h1>
     
     <div class="welcome-message">
-      <i class="fas fa-gamepad"></i> به بازی تست هوش خوش آمدید! </>مهدی رحمانی </>
+      <i class="fas fa-gamepad"></i> به بازی تست هوش خوش آمدید! <br>مهدی رحمانی
     </div>
     
-    <div id="level-info">
-      <div class="info-box">
-        <i class="fas fa-layer-group"></i>
-        مرحله: <span id="current-level">1</span>/<span id="total-levels">5</span>
-      </div>
-      <div class="info-box">
-        <i class="fas fa-star"></i>
-        امتیاز: <span id="score">0</span>
+    <div class="game-header">
+      <div class="game-info">
+        <div class="info-box">
+          <i class="fas fa-layer-group"></i>
+          مرحله: <span id="current-level">1</span>/<span id="total-levels">5</span>
+        </div>
+        <div class="info-box">
+          <i class="fas fa-star"></i>
+          امتیاز: <span id="score">0</span>
+        </div>
       </div>
     </div>
     
@@ -454,31 +468,31 @@
       levels: [
         {
           size: 6,
-          words: ["مکتب", "کتاب", "قلم", "دفتر", "مدرسه"],
+          words: ["مکتب", "کتاب", "قلم", "دفتر", "مدرسه", "نقاش", "مداد", "پاککن", "خطکش", "گچ"],
           time: 90,
           hints: 3
         },
         {
           size: 7,
-          words: ["دانشجو", "معلم", "تحصیل", "علم", "کتابخانه"],
+          words: ["دانشجو", "معلم", "تحصیل", "علم", "کتابخانه", "دانشگاه", "آموزگار", "مدرسه", "کلاس", "تخته"],
           time: 120,
           hints: 3
         },
         {
           size: 8,
-          words: ["دانشگاه", "آموزش", "پژوهش", "مطالعه", "تحقیق"],
+          words: ["دانشگاه", "آموزش", "پژوهش", "مطالعه", "تحقیق", "کتابفروشی", "خوشنویسی", "کتابخوانی", "دانشآموز", "کتابداری"],
           time: 150,
           hints: 2
         },
         {
           size: 9,
-          words: ["کتابفروشی", "خوشنویسی", "کتابخوانی", "دانشآموز", "کتابداری"],
+          words: ["کتابفروشی", "خوشنویسی", "کتابخوانی", "دانشآموز", "کتابداری", "دیکته", "انشا", "ریاضی", "علوم", "تاریخ"],
           time: 180,
           hints: 2
         },
         {
           size: 10,
-          words: ["دایرهالمعارف", "کتابشناسی", "تحصیلات", "آموزشگاه", "کتابگردی"],
+          words: ["دایرهالمعارف", "کتابشناسی", "تحصیلات", "آموزشگاه", "کتابگردی", "کتابخانه", "دانشکده", "پروفسور", "دکترا", "لیسانس"],
           time: 210,
           hints: 1
         }
@@ -496,6 +510,7 @@
     let wordPositions = [];
     let timer;
     let timeLeft = 90;
+    let usedWords = []; // لیست کلمات استفاده شده
 
     // عناصر DOM
     const grid = document.getElementById("grid");
@@ -531,8 +546,17 @@
       timeLeft = level.time;
       hintCount = level.hints;
       
-      // انتخاب کلمه تصادفی
-      selectedWord = level.words[Math.floor(Math.random() * level.words.length)];
+      // انتخاب کلمه تصادفی بدون تکرار
+      let availableWords = level.words.filter(word => !usedWords.includes(word));
+      
+      if (availableWords.length === 0) {
+        // اگر همه کلمات استفاده شده‌اند، لیست را ریست کنیم
+        usedWords = [];
+        availableWords = [...level.words];
+      }
+      
+      selectedWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+      usedWords.push(selectedWord);
       
       // به‌روزرسانی نمایش
       currentLevelElement.textContent = currentLevel + 1;

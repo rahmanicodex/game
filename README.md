@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>بازی جذاب پیدا کردن کلمات</title>
+  <title>بازی تست هوش</title>
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet">
   <style>
     :root {
@@ -409,7 +409,7 @@
     <h1>بازی جذاب پیدا کردن کلمات</h1>
     
     <div class="welcome-message">
-      <i class="fas fa-gamepad"></i> به بازی مهیج پیدا کردن کلمات خوش آمدید! این بازی توسط مهدی رحمانی طراحی شده است.
+      <i class="fas fa-gamepad"></i> به بازی تست هوش خوش آمدید! </>مهدی رحمانی </>
     </div>
     
     <div id="level-info">

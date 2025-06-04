@@ -6,13 +6,7 @@
   <title>بازی تست هوش</title>
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet">
   <style>
-    html, body {
-      overflow: hidden;
-      height: 100%;
-      width: 100%;
-      position: fixed;
-    }
-
+    /* استایل‌های عمومی */
     :root {
       --primary: #4361ee;
       --primary-light: #4895ef;
@@ -37,24 +31,142 @@
     body {
       font-family: Vazir, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       direction: rtl;
-      background: 
-        linear-gradient(135deg, rgba(67, 97, 238, 0.2) 0%, rgba(58, 12, 163, 0.2) 100%),
-        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path fill="%234361ee" fill-opacity="0.1" d="M30,10L50,30L70,10L90,30L70,50L90,70L70,90L50,70L30,90L10,70L30,50L10,30L30,10Z" transform="rotate(45 50 50)"/></svg>');
-      background-attachment: fixed;
-      background-size: cover;
+      overflow: hidden;
+      height: 100vh;
+      background: linear-gradient(135deg, rgba(67, 97, 238, 0.2) 0%, rgba(58, 12, 163, 0.2) 100%);
+    }
+
+    /* صفحه شروع */
+    .start-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path fill="%234361ee" fill-opacity="0.1" d="M30,10L50,30L70,10L90,30L70,50L90,70L70,90L50,70L30,90L10,70L30,50L10,30L30,10Z" transform="rotate(45 50 50)"/></svg>');
+      background-size: cover;
+      z-index: 1000;
+      transition: all 0.5s ease;
+    }
+
+    .start-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .start-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 25px;
+      padding: 40px;
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      transform: scale(0.9);
+      animation: scaleIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    .game-title {
+      color: var(--primary);
+      font-size: 3rem;
+      margin-bottom: 20px;
+      position: relative;
+      text-shadow: 0 3px 10px rgba(67, 97, 238, 0.3);
+    }
+
+    .game-title::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      right: 0;
+      width: 150px;
+      height: 5px;
+      background: linear-gradient(to right, var(--primary), var(--primary-light));
+      border-radius: 3px;
+    }
+
+    .welcome-text {
+      font-size: 1.2rem;
       color: var(--dark);
+      margin-bottom: 30px;
+      line-height: 1.8;
+    }
+
+    .start-btn {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      border-radius: 15px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+      box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .start-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(67, 97, 238, 0.5);
+    }
+
+    .start-btn:active {
+      transform: translateY(1px);
+    }
+
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .feature {
+      background: rgba(67, 97, 238, 0.1);
+      padding: 15px;
+      border-radius: 12px;
+      width: 45%;
+      min-width: 200px;
+      transition: all 0.3s;
+    }
+
+    .feature:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(67, 97, 238, 0.2);
+    }
+
+    .feature i {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .feature h3 {
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    /* صفحه بازی */
+    .game-container {
+      display: none;
+      width: 100%;
+      height: 100%;
+      padding: 20px;
     }
 
     .container {
       background: rgba(255, 255, 255, 0.9);
       border-radius: 20px;
-      box-shadow: var(--shadow-hover);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
       padding: 30px;
       width: 95%;
       max-width: 800px;
@@ -62,7 +174,7 @@
       overflow-y: auto;
       text-align: center;
       position: relative;
-      transition: all 0.3s ease;
+      margin: 0 auto;
       backdrop-filter: blur(5px);
     }
 
@@ -366,8 +478,30 @@
       100% { transform: translateX(100%); }
     }
 
+    @keyframes scaleIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
     /* رسپانسیو */
     @media (max-width: 768px) {
+      .start-container {
+        padding: 30px 20px;
+      }
+      
+      .game-title {
+        font-size: 2.2rem;
+      }
+      
+      .feature {
+        width: 100%;
+      }
+      
       .container {
         padding: 20px;
       }
@@ -417,51 +551,92 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <div class="container">
-    <h1>بازی تست هوش</h1>
-    
-    <div class="welcome-message">
-      <i class="fas fa-gamepad"></i> به بازی تست هوش خوش آمدید! <br>مهدی رحمانی
-    </div>
-    
-    <div class="game-header">
-      <div class="game-info">
-        <div class="info-box">
-          <i class="fas fa-layer-group"></i>
-          مرحله: <span id="current-level">1</span>/<span id="total-levels">5</span>
+  <!-- صفحه شروع -->
+  <div class="start-screen" id="startScreen">
+    <div class="start-container">
+      <h1 class="game-title">بازی تست هوش</h1>
+      <p class="welcome-text">
+        به بازی جذاب و چالش‌برانگیز تست هوش خوش آمدید! <br>
+        در این بازی باید کلمات پنهان شده در جدول را پیدا کنید.
+      </p>
+      
+      <div class="features">
+        <div class="feature">
+          <i class="fas fa-brain"></i>
+          <h3>تقویت حافظه</h3>
+          <p>حافظه و دقت خود را تقویت کنید</p>
         </div>
-        <div class="info-box">
-          <i class="fas fa-star"></i>
-          امتیاز: <span id="score">0</span>
+        <div class="feature">
+          <i class="fas fa-trophy"></i>
+          <h3>مراحل چالش‌برانگیز</h3>
+          <p>۵ سطح با سختی پیشرونده</p>
+        </div>
+        <div class="feature">
+          <i class="fas fa-clock"></i>
+          <h3>محدودیت زمانی</h3>
+          <p>هر سطح زمان محدودی دارد</p>
+        </div>
+        <div class="feature">
+          <i class="fas fa-lightbulb"></i>
+          <h3>راهنمایی هوشمند</h3>
+          <p>در صورت نیاز از راهنمایی استفاده کنید</p>
         </div>
       </div>
-    </div>
-    
-    <div class="progress-container">
-      <div class="progress-bar" id="progress-bar"></div>
-    </div>
-    
-    <div id="word"></div>
-    <div class="grid" id="grid"></div>
-    <div id="message"></div>
-    <div id="level-complete" class="level-complete" style="display: none;">
-      <i class="fas fa-trophy"></i> مرحله با موفقیت تکمیل شد!
-    </div>
-    
-    <div class="controls">
-      <button id="next-level-btn" disabled>
-        <i class="fas fa-arrow-left"></i> مرحله بعد
-      </button>
-      <button id="hint-btn">
-        <i class="fas fa-lightbulb"></i> راهنمایی (<span id="hint-count">3</span>)
-      </button>
-      <button id="new-game-btn" style="display: none;">
-        <i class="fas fa-redo"></i> بازی جدید
+      
+      <button class="start-btn" id="startBtn">
+        <i class="fas fa-play"></i> شروع بازی
       </button>
     </div>
-    
-    <div class="creator-credit">
-      <i class="fas fa-code"></i> طراحی و توسعه توسط مهدی رحمانی
+  </div>
+
+  <!-- صفحه بازی -->
+  <div class="game-container" id="gameContainer">
+    <div class="container">
+      <h1>بازی تست هوش</h1>
+      
+      <div class="welcome-message">
+        <i class="fas fa-gamepad"></i> به بازی تست هوش خوش آمدید! <br>مهدی رحمانی
+      </div>
+      
+      <div class="game-header">
+        <div class="game-info">
+          <div class="info-box">
+            <i class="fas fa-layer-group"></i>
+            مرحله: <span id="current-level">1</span>/<span id="total-levels">5</span>
+          </div>
+          <div class="info-box">
+            <i class="fas fa-star"></i>
+            امتیاز: <span id="score">0</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      
+      <div id="word"></div>
+      <div class="grid" id="grid"></div>
+      <div id="message"></div>
+      <div id="level-complete" class="level-complete" style="display: none;">
+        <i class="fas fa-trophy"></i> مرحله با موفقیت تکمیل شد!
+      </div>
+      
+      <div class="controls">
+        <button id="next-level-btn" disabled>
+          <i class="fas fa-arrow-left"></i> مرحله بعد
+        </button>
+        <button id="hint-btn">
+          <i class="fas fa-lightbulb"></i> راهنمایی (<span id="hint-count">3</span>)
+        </button>
+        <button id="new-game-btn" style="display: none;">
+          <i class="fas fa-redo"></i> بازی جدید
+        </button>
+      </div>
+      
+      <div class="creator-credit">
+        <i class="fas fa-code"></i> طراحی و توسعه توسط مهدی رحمانی
+      </div>
     </div>
   </div>
 
@@ -516,6 +691,9 @@
     let usedWords = [];
 
     // عناصر DOM
+    const startScreen = document.getElementById("startScreen");
+    const gameContainer = document.getElementById("gameContainer");
+    const startBtn = document.getElementById("startBtn");
     const grid = document.getElementById("grid");
     const message = document.getElementById("message");
     const wordDiv = document.getElementById("word");
@@ -529,9 +707,21 @@
     const newGameBtn = document.getElementById("new-game-btn");
     const levelCompleteDiv = document.getElementById("level-complete");
 
-    // مقداردهی اولیه
-    totalLevelsElement.textContent = gameSettings.levels.length;
-    initLevel();
+    // شروع بازی با کلیک روی دکمه شروع
+    startBtn.addEventListener("click", () => {
+      startScreen.classList.add("hidden");
+      setTimeout(() => {
+        startScreen.style.display = "none";
+        gameContainer.style.display = "block";
+      }, 500);
+      initGame();
+    });
+
+    // مقداردهی اولیه بازی
+    function initGame() {
+      totalLevelsElement.textContent = gameSettings.levels.length;
+      initLevel();
+    }
 
     // شروع مرحله جدید
     function initLevel() {
